@@ -1,0 +1,57 @@
+import streamlit as st
+
+# Housing status scores (updated with Housed = 1)
+housing_scores = {
+    "Homeless": 6,
+    "Imminent Risk of Homelessness": 5,
+    "In Treatment": 4,
+    "Couch-Surfing": 3,
+    "Group Home": 2,
+    "Institution/Halfway House": 1,
+    "Housed": 1
+}
+
+# Risk factors (flexible weights)
+risk_factors = {
+    "Mental health issues": 1,
+    "Substance use disorder": 1
+}
+
+st.title("🏠 Homelessness Risk Assessment Tool")
+
+# Select housing status
+housing_status = st.selectbox("Select Housing Status:", list(housing_scores.keys()))
+
+# Select additional risk factors
+selected_risks = st.multiselect("Select Additional Risk Factors:", list(risk_factors.keys()))
+
+# Service engagement question
+service_engagement = st.radio("Are you currently receiving services from us?", ["Yes", "No"])
+
+# Calculate scores
+base_score = housing_scores[housing_status]
+additional_score = sum(risk_factors[risk] for risk in selected_risks)
+service_score = 5 if service_engagement == "Yes" else -5
+
+# Apply total score rules: floor at 0, cap at 10
+raw_score = base_score + additional_score + service_score
+total_score = max(0, min(raw_score, 10))
+
+# Display scores
+st.subheader("🧮 Total Risk Score")
+st.write(f"**Base Score (Housing Status):** {base_score}")
+st.write(f"**Additional Risk Score:** {additional_score}")
+st.write(f"**Service Engagement Score:** {service_score}")
+st.write(f"**Total Risk Score (0–10):** {total_score}")
+
+# Progress bar visualization
+st.progress(total_score / 10)
+
+# Interpretation
+st.subheader("📊 Interpretation")
+if total_score >= 9:
+    st.error("🔴 **High Need**: Immediate intervention recommended.")
+elif total_score >= 6:
+    st.warning("🟠 **Moderate Need**: Monitor closely and provide support.")
+else:
+    st.success("🟢 **Low Need**: Stable but may require transitional planning.")
