@@ -1,4 +1,3 @@
-import streamlit as st
 
 # Housing status scores (updated with Housed = 1)
 housing_scores = {
